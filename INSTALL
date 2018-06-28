@@ -1,0 +1,52 @@
+		libpyhdfs installation
+
+
+ step by step
+ ------------
+
+** install Java SDK 6
+   # apt-get install sun-java6-jdk
+   
+   setting $JAVA_HOME
+
+** install Hadoop's libhdfs development package
+
+   For easy to install packaes, follow instructions at
+
+   http://archive.cloudera.com/docs/
+
+   and then run
+
+   # apt-get install libhdfs0-dev
+
+   or download Hadoop Client, then setting $HADOOP_HOME
+   
+** install libpyhdfs 
+
+   - check out the source: 
+      $ svn co http://libpyhdfs.googlecode.com/svn/trunk/ libpyhdfs   
+
+   - prepare the libhdfs.so
+      You can copy your libhdfs.so into `lib' directory.
+   or 
+      Edit setup.py: make `library_dirs' point to the correct place.
+      7                    library_dirs = ['lib'],
+
+   - install
+      # python3 setup.py install --prefix="/usr/local"
+   
+
+  If you see the following error:
+/usr/lib/jvm/java-6-sun/include/jni.h:27:20: error: jni_md.h: No such file or directory
+
+Edit /usr/lib/jvm/java-6-sun/include/jni.h
+change  - 27 #include "jni_md.h"
+into    + 27 #include "linux/jni_md.h"
+
+ses https://bugs.launchpad.net/ubuntu/+source/sun-java6/+bug/390290
+Debian has the same problem.
+
+** Run test script
+   $ cd test
+   $ python3 pyhdfs_test.py
+
