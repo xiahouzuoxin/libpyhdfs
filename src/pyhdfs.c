@@ -24,6 +24,7 @@
 #include "hdfs.h"
 
 #define NO_JAVA_EXCEPTION_OUTPUT 1
+#define MAX_RW_SIZE              (1<<29)
 
 FILE *
 disable_stderr(void)
@@ -255,8 +256,9 @@ hdfs_read(PyObject *self, PyObject *args)
 	file = (hdfsFile)PyLong_AsVoidPtr(pyfile);
 	
 	
-	if (size > 2 * 1024 * 1024 || size <= 0)
-		size = 2 * 1024 * 1024;
+	if (size > MAX_RW_SIZE || size <= 0)
+		size = MAX_RW_SIZE;
+    printf("MAX_RW_SIZE: %d\n", MAX_RW_SIZE);
 			
 	buf = PyMem_Malloc(size);
 	if (buf == NULL) 
@@ -294,8 +296,8 @@ hdfs_pread(PyObject *self, PyObject *args)
 	file = (hdfsFile)PyLong_AsVoidPtr(pyfile);
 	
 	
-	if (size > 2 * 1024 * 1024 || size <= 0)
-		size = 2 * 1024 * 1024;
+	if (size > MAX_RW_SIZE || size <= 0)
+		size = MAX_RW_SIZE;
 			
 	buf = PyMem_Malloc(size);
 	if (buf == NULL) 
@@ -803,7 +805,7 @@ static PyMethodDef HdfsMethods[] =
 	{"open", hdfs_open, METH_VARARGS, "open(fs, path[, mode[, bufsize[, replication[, blksiz]]]]) -> hdfs-file \n\nOpen a hdfs file in given mode (\"r\" or \"w\"), default is read-only"},
 	{"write", hdfs_write, METH_VARARGS, "write(fs, hdfsfile, str) -> byteswritten \n\nWrite data into an open file"},
 	{"flush", hdfs_flush, METH_VARARGS, "flush(fs, hdfsfile) -> None \n\nFlush the data"},
-	{"read", hdfs_read, METH_VARARGS, "read(fs, hdfsfile[, size]) -> read at most min(2M, size) bytes, returned as a string \n\nIf the size argument is <=0 or omitted, read at most 2M bytes. When EOF is reached, empty string will be returned"},
+	{"read", hdfs_read, METH_VARARGS, "read(fs, hdfsfile[, size]) -> read at most min(512M, size) bytes, returned as a string \n\nIf the size argument is <=0 or omitted, read at most 512M bytes. When EOF is reached, empty string will be returned"},
 	{"pread", hdfs_pread, METH_VARARGS, "pread(fs, hdfsfile, offset[, size]) -> similar to read, read data from given position"},
 	{"seek", hdfs_seek, METH_VARARGS, "seek(fs, hdfsfile, offset) -> True or False \n\nSeek to given offset in open file in read-only mode"},
 	{"tell", hdfs_tell, METH_VARARGS, "tell(fs, hdfsfile) -> int \n\nGet the current offset in the file, in bytes. -1 is returned on error"},
